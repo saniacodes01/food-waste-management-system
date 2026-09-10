@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Donate · Waste less, feed more</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A5%97%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="assets/app.css" />
+  <style>
+    .hero { background: var(--green); color: #fff; padding: 72px 28px; text-align: center; }
+    .hero h1 { font-size: 40px; font-weight: 700; max-width: 760px; margin: 0 auto 14px; }
+    .hero p { font-size: 19px; max-width: 620px; margin: 0 auto 26px; opacity: .95; }
+    .hero .btn { background: #fff; color: var(--green-dark); }
+    .hero .btn.ghost { background: transparent; border: 1px solid #fff; color: #fff; }
+    .how { max-width: 1000px; margin: 60px auto; padding: 0 28px; }
+    .how h2 { text-align: center; font-size: 26px; margin-bottom: 30px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .step { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .step .num { font-size: 13px; font-weight: 700; color: var(--green); }
+    .step h3 { margin: 6px 0; font-size: 18px; }
+    .step p { color: var(--muted); font-size: 14px; }
+    .roles { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 56px 28px; }
+    .roles .inner { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .role { text-align: center; }
+    .role .ic { font-size: 34px; }
+    footer.site { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Food <b>Donate</b></div>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="login.html" id="nav-login">Log in</a>
+      <a href="login.html?mode=register" class="btn sm">Register</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>The food that's left over can feed the people who need it.</h1>
+    <p>Restaurants post surplus food, nearby NGOs claim it for the needy, and the closest delivery partner carries it across. Less waste, more meals.</p>
+    <a href="login.html?mode=register" class="btn">Get started</a>
+    <a href="login.html" class="btn ghost">I have an account</a>
+  </section>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step"><div class="num">STEP 1</div><h3>Restaurant posts food</h3><p>A hotel, canteen or event lists leftover food with a pickup point and best-before time.</p></div>
+      <div class="step"><div class="num">STEP 2</div><h3>Nearby NGO claims it</h3><p>NGOs see donations near them ranked by distance and claim what they can distribute.</p></div>
+      <div class="step"><div class="num">STEP 3</div><h3>Nearest partner delivers</h3><p>The closest available delivery partner is auto-assigned to move it from the restaurant to the NGO.</p></div>
+      <div class="step"><div class="num">STEP 4</div><h3>It reaches the needy</h3><p>The NGO confirms receipt. Every step is tracked end to end.</p></div>
+    </div>
+  </section>
+
+  <section class="roles">
+    <div class="inner">
+      <div class="role"><div class="ic">🍽️</div><h3>Restaurant</h3><p class="page-sub">Register your kitchen and post surplus food in seconds.</p></div>
+      <div class="role"><div class="ic">🤝</div><h3>NGO</h3><p class="page-sub">Register your organisation and pick up food for the people you serve.</p></div>
+      <div class="role"><div class="ic">🛵</div><h3>Delivery partner</h3><p class="page-sub">Sign up, go on shift, and get matched to the nearest pickups.</p></div>
+    </div>
+  </section>
+
+  <footer class="site">
+    Food Donate — a food waste management system. &copy; <span id="y"></span>
+  </footer>
+
+  <script src="assets/api.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    if (window.FW.session.token) {
+      const l = document.getElementById("nav-login");
+      l.textContent = "Open dashboard"; l.href = "app.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in · Food Donate</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A5%97%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="assets/app.css" />
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <h1>Food <b style="color:var(--green)">Donate</b></h1>
+      <p class="page-sub" style="text-align:center" id="lead">Sign in to your account</p>
+
+      <div id="notice"></div>
+
+      <!-- LOGIN -->
+      <form class="stack" id="login-form" style="max-width:none">
+        <div>
+          <label>Email</label>
+          <input type="email" name="email" required />
+        </div>
+        <div>
+          <label>Password</label>
+          <input type="password" name="password" required />
+        </div>
+        <button class="btn" type="submit">Sign in</button>
+        <p class="switch">New here? <a href="#" id="to-register">Create an account</a></p>
+      </form>
+
+      <!-- REGISTER -->
+      <form class="stack" id="register-form" hidden style="max-width:none">
+        <div>
+          <label>I am registering as</label>
+          <div class="role-picker" id="role-picker">
+            <button type="button" data-role="restaurant" class="active">🍽️ Restaurant<br /><small>I have leftover food</small></button>
+            <button type="button" data-role="ngo">🤝 NGO<br /><small>I serve needy people</small></button>
+            <button type="button" data-role="delivery">🛵 Delivery<br /><small>I move the food</small></button>
+          </div>
+        </div>
+        <div>
+          <label id="name-label">Organisation / name</label>
+          <input name="name" required />
+        </div>
+        <div class="field-row">
+          <div><label>Email</label><input type="email" name="email" required /></div>
+          <div><label>Phone</label><input name="phone" /></div>
+        </div>
+        <div>
+          <label>Password</label>
+          <input type="password" name="password" minlength="6" required />
+        </div>
+        <div id="addr-wrap">
+          <label>Address</label>
+          <input name="address" />
+        </div>
+        <div class="field-row">
+          <div><label>City</label><input name="city" /></div>
+          <div id="vehicle-wrap" hidden><label>Vehicle</label>
+            <select name="vehicle_type"><option value="">—</option><option>bike</option><option>car</option><option>van</option></select>
+          </div>
+        </div>
+        <div id="desc-wrap">
+          <label id="desc-label">About (optional)</label>
+          <textarea name="description"></textarea>
+        </div>
+        <div class="field-row">
+          <div><label>Latitude</label><input name="lat" id="lat" type="number" step="any" /></div>
+          <div><label>Longitude</label><input name="lng" id="lng" type="number" step="any" /></div>
+        </div>
+        <button type="button" class="btn ghost sm" id="locate">📍 Use my current location</button>
+        <p class="hint">Your location powers the "nearest NGO / nearest delivery partner" matching. You can update it later.</p>
+        <button class="btn" type="submit">Create account</button>
+        <p class="switch">Already have an account? <a href="#" id="to-login">Sign in</a></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/api.js"></script>
+  <script>
+    const { api, session, getLocation } = window.FW;
+    const notice = document.getElementById("notice");
+    const loginForm = document.getElementById("login-form");
+    const regForm = document.getElementById("register-form");
+    let role = "restaurant";
+
+    if (session.token) location.href = "app.html";
+    if (new URLSearchParams(location.search).get("mode") === "register") showRegister();
+
+    function msg(text, kind = "err") {
+      notice.innerHTML = text ? `<div class="notice ${kind}">${text}</div>` : "";
+    }
+    function showRegister() {
+      loginForm.hidden = true; regForm.hidden = false;
+      document.getElementById("lead").textContent = "Create your account";
+      msg("");
+    }
+    function showLogin() {
+      regForm.hidden = true; loginForm.hidden = false;
+      document.getElementById("lead").textContent = "Sign in to your account";
+      msg("");
+    }
+    document.getElementById("to-register").onclick = (e) => { e.preventDefault(); showRegister(); };
+    document.getElementById("to-login").onclick = (e) => { e.preventDefault(); showLogin(); };
+
+    document.getElementById("role-picker").addEventListener("click", (e) => {
+      const b = e.target.closest("button"); if (!b) return;
+      role = b.dataset.role;
+      [...e.currentTarget.children].forEach((c) => c.classList.toggle("active", c === b));
+      document.getElementById("vehicle-wrap").hidden = role !== "delivery";
+      document.getElementById("addr-wrap").hidden = role === "delivery";
+      document.getElementById("desc-wrap").hidden = role === "delivery";
+      document.getElementById("name-label").textContent =
+        role === "ngo" ? "NGO name" : role === "restaurant" ? "Restaurant name" : "Your name";
+      document.getElementById("desc-label").textContent =
+        role === "ngo" ? "Who do you serve? (optional)" : "About (optional)";
+    });
+
+    document.getElementById("locate").onclick = async (e) => {
+      e.target.disabled = true; e.target.textContent = "Locating…";
+      const loc = await getLocation();
+      e.target.disabled = false; e.target.textContent = "📍 Use my current location";
+      if (!loc) return msg("Couldn't get your location — enter it manually.");
+      document.getElementById("lat").value = loc.lat;
+      document.getElementById("lng").value = loc.lng;
+      msg("Location captured.", "ok");
+    };
+
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(loginForm));
+      try {
+        const r = await api.login(f);
+        session.set(r);
+        location.href = "app.html";
+      } catch (err) { msg(err.message); }
+    };
+
+    regForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(regForm));
+      const body = { role };
+      for (const [k, v] of Object.entries(f)) {
+        if (v === "" || v == null) continue;
+        body[k] = (k === "lat" || k === "lng") ? Number(v) : v;
+      }
+      try {
+        const r = await api.register(body);
+        session.set(r);
+        location.href = "app.html";
+      } catch (err) { msg(err.message); }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact · Food Donate</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A5%97%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="assets/app.css" />
+  <style>
+    .accordion { width: 100%; text-align: left; background: #fff; border: 1px solid var(--line);
+      border-radius: 8px; padding: 14px 16px; font-size: 15px; cursor: pointer; margin-top: 8px; }
+    .accordion.active { border-color: var(--green); }
+    .panel { display: none; padding: 10px 16px 16px; font-size: 14px; color: var(--muted); }
+    .panel.open { display: block; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Food <b>Donate</b></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="active">Contact</a>
+      <a href="login.html" class="btn sm">Log in</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <h1 class="page-title">Contact us</h1>
+    <p class="page-sub">Questions, partnership requests or feedback — send them our way.</p>
+
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px">
+      <div class="card">
+        <h3>Send a message</h3>
+        <div id="notice"></div>
+        <form class="stack" id="fb" style="max-width:none;margin-top:10px">
+          <div><label>Name</label><input name="name" /></div>
+          <div><label>Email</label><input type="email" name="email" /></div>
+          <div><label>Message</label><textarea name="message" required></textarea></div>
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Reach us</h3>
+        <p class="meta" style="margin-top:8px">Email: fooddonate@gmail.com</p>
+        <p class="meta">Phone: 555-555-5555</p>
+        <p class="meta">Address: Thiagarajar College, Madurai</p>
+      </div>
+    </div>
+
+    <h2 class="page-title" style="font-size:20px;margin-top:34px">Help &amp; FAQs</h2>
+    <button class="accordion">How do I donate food?</button>
+    <div class="panel"><p>Register as a restaurant, open your dashboard, choose "Post food", fill in the details and submit. Nearby NGOs will see it immediately.</p></div>
+    <button class="accordion">How will my donation be used?</button>
+    <div class="panel"><p>Claimed donations are collected by a delivery partner and taken to the NGO, which distributes the food to needy people the same day.</p></div>
+    <button class="accordion">What if my food is near its expiry date?</button>
+    <div class="panel"><p>Add a realistic "best before" time when posting. For safety, don't donate food that is already past its expiry date.</p></div>
+  </main>
+
+  <script src="assets/api.js"></script>
+  <script>
+    const { api } = window.FW;
+    const fb = document.getElementById("fb");
+    const notice = document.getElementById("notice");
+    fb.onsubmit = async (e) => {
+      e.preventDefault();
+      const body = Object.fromEntries([...new FormData(fb)].filter(([, v]) => v !== ""));
+      try {
+        await api.post("/api/feedback", body);
+        notice.innerHTML = `<div class="notice ok">Thanks — your message was sent.</div>`;
+        fb.reset();
+      } catch (err) {
+        notice.innerHTML = `<div class="notice err">${err.message}</div>`;
+      }
+    };
+    document.querySelectorAll(".accordion").forEach((a) => {
+      a.onclick = () => { a.classList.toggle("active"); a.nextElementSibling.classList.toggle("open"); };
+    });
+  </script>
+</body>
+</html>
